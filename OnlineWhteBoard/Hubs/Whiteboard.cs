@@ -22,5 +22,13 @@ namespace OnlineWhteBoard.Hubs
         {
 
         }
+        public void JoinGroup(string groupName)
+        {
+            Groups.Add(Context.ConnectionId, groupName);
+        }
+        public void JoinChat(string name, string groupName)
+        {
+            Clients.Group(groupName).ChatJoined(name);
+        }
     }
 }

@@ -2,6 +2,7 @@
     /*padding-top: 50px;
     padding-bottom: 20px;*/
     background-color:lavender;
+    color:black;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -9,8 +10,19 @@
     padding-left: 15px;
     padding-right: 15px;
 }
+.green {
+    background-color:green;
+}
 .chatBox{
     min-height:300px;
+}
+.modal-color{
+    background-color:lightgray;
+    color:black;
+}
+.modal-color input{
+    background-color:beige;
+    color:black;
 }
 .canvas{
     border:2px 2px 2px 0;
@@ -25,6 +37,7 @@ canvas {
 }
 .cur{
 cursor: url(../img/cursor.png), crosshair;
+pointer-events: none;
 }
 .controls {
 	min-height: 60px;

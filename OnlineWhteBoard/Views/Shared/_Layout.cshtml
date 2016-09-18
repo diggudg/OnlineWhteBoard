@@ -6,7 +6,8 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    @Scripts.Render("~/bundles/jquery")
+    <script src="~/Scripts/jquery-3.1.0.js"></script>
+   @* @Scripts.Render("~/bundles/jquery")*@
     @Scripts.Render("~/bundles/bootstrap")
     <style>
     /* Add a gray background color and some padding to the footer */
@@ -127,13 +128,14 @@
         <p>Footer Text</p>
     </footer>
 
-    <script src="~/Scripts/jquery-3.1.0.js"></script>
+    
     <script src="~/Scripts/jquery.signalR-2.2.1.js"></script>
     <script src="~/signalR/hubs"></script>
     <script src="~/Scripts/angular.js"></script>
   <script>
+     
       var app = angular.module('myApp', []);
-      app.controller('', function ($scope) {
+      app.controller('', function ($scope,$rootScope) {
           $scope.name = 'Guest'; // holds the user's name
           $scope.message = ''; // holds the new message
           $scope.messages = []; // collection of messages coming from server
@@ -216,9 +218,9 @@
 
 
       });
-      app.controller('chatController', function ($scope) {
+      app.controller('chatController', function ($scope, $rootScope) {
           var vm = this;
-          vm.Name = 'Guest';
+          $rootScope.Name = 'Guest';
           vm.Message = ''
           vm.Messages = [];
           vm.ChatHub = null;
@@ -252,7 +254,7 @@
               vm.draw(x, y, a, b);
           };
           vm.newMessage = function () {
-              vm.whiteBoard.server.sendMessage(vm.Name, vm.Message);
+              vm.whiteBoard.server.sendMessage($rootScope.Name, vm.Message);
               vm.Message = '';
           };
           $canvas.mousedown(function (e) {
@@ -271,8 +273,8 @@
               vm.newEvevnt.offsetY = e.offsetY;
               if(vm.mouseDown)
               {
-                  if(vm.Name=='Guest'){
-                      $("canvas").removeClass("cur");
+                  if ($rootScope.Name == 'Guest') {
+                      $("canvas").addClass("cur");
                   }
                   vm.draw(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
                   vm.whiteBoard.server.updateCanvas(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
@@ -281,7 +283,52 @@
          
       });
   </script>
-   
+    <script>
+        $(document).ready(function () {
+            $("#myModal").modal();
+        });
+    </script>
+    <div class="modal fade " id="myModal" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                @*<div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                </div>*@
+                <div class="modal-body ">
+                    <div class="well modal-color">
+                        <form id="loginForm" method="POST" action="/login/" novalidate="novalidate">
+                            <div class="form-group">
+                                <label for="username" class="control-label">Username</label>
+                                <input type="text" ng-model="Name" class="form-control" id="username" name="username" value="" required="" title="Please enter you username" placeholder="example@gmail.com">
+                                <span class="help-block"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="control-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" value="" required="" title="Please enter your password">
+                                <span class="help-block"></span>
+                            </div>
+                            <div id="loginErrorMsg" class="alert alert-error hide">Wrong username og password</div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="remember" id="remember"> Remember login
+                                </label>
+                               
+                            </div>
+                            <button type="button" class="btn btn-success green " data-dismiss="modal">Login</button>
+                           
+                        </form>
+                    </div>
+                </div>
+                @*<div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>*@
+            </div>
+
+        </div>
+    </div>
     @RenderSection("scripts", required: false)
 </body>
 </html>
