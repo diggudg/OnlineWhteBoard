@@ -1,6 +1,7 @@
 ﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
+    /*padding-top: 50px;
+    padding-bottom: 20px;*/
+    background-color:lavender;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -8,7 +9,30 @@
     padding-left: 15px;
     padding-right: 15px;
 }
-
+.chatBox{
+    min-height:300px;
+}
+.canvas{
+    border:2px 2px 2px 0;
+    border-color:black;
+}
+canvas {
+    background: #fff;
+    display: block;
+    margin: 0 auto 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 2px 0 #222;
+}
+.cur{
+cursor: url(../img/cursor.png), crosshair;
+}
+.controls {
+	min-height: 60px;
+	margin: 0 auto;
+	width: 600px;
+	border-radius: 5px;
+	overflow: hidden;
+}
 /* Override the default bootstrap behavior where horizontal description lists 
    will truncate terms that are too long to fit in the left column 
 */

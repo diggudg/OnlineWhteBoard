@@ -6,12 +6,14 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
     <style>
     /* Add a gray background color and some padding to the footer */
-    footer {
+    /*footer {
       background-color: #f2f2f2;
       padding: 25px;
-    }
+    }*/
 
     .carousel-inner img {
       width: 100%; /* Set width to 100% */
@@ -26,7 +28,7 @@
     }
     </style>
 </head>
-<body>
+<body  ng-app="myApp">
 
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
@@ -124,16 +126,162 @@
     <footer class="container-fluid text-center">
         <p>Footer Text</p>
     </footer>
-    <div class="container body-content">
-      
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/jquery-3.1.0.js"></script>
+    <script src="~/Scripts/jquery.signalR-2.2.1.js"></script>
+    <script src="~/signalR/hubs"></script>
+    <script src="~/Scripts/angular.js"></script>
+  <script>
+      var app = angular.module('myApp', []);
+      app.controller('', function ($scope) {
+          $scope.name = 'Guest'; // holds the user's name
+          $scope.message = ''; // holds the new message
+          $scope.messages = []; // collection of messages coming from server
+          $scope.chatHub = null; // holds the reference to hub
+
+          var color = $(".selected").css("background-color");;
+          var $canvas = $("canvas");
+          var context = $canvas[0].getContext("2d");
+          var lastEvent = {
+              offsetX: 0,
+              offsetY: 0
+          };
+          var newEvent = {
+              offsetX: 0,
+              offsetY: 0
+          };
+          var mouseDown = false;
+
+          $scope.chatHub = $.connection.whiteBoard; // initializes hub
+          $.connection.hub.start(); // starts hub
+
+          // register a client method on hub to be invoked by the server
+          $scope.chatHub.client.broadcastMessage = function (name, message) {
+              var newMessage = name + ' says: ' + message;
+
+              // push the newly coming message to the collection of messages
+              $scope.messages.push(newMessage);
+              $scope.$apply();
+          };
+
+          $scope.newMessage = function () {
+              // sends a new message to the server
+              $scope.chatHub.server.sendMessage($scope.name, $scope.message);
+
+              $scope.message = '';
+          };
+         // var wb = $.connection.drawCanvas;
+          // Create a function that the hub can call to broadcast messages.
+          //wb.client.createCanvas = function (x, y, a, b) {
+          //    draw(x, y, a, b)
+          //};
+          // Get the user name and store it to prepend to messages.
+
+
+          $canvas.mousedown(function (e) {
+              lastEvent.offsetX = e.offsetX;
+              lastEvent.offsetY = e.offsetY;
+              mouseDown = true;
+          }).mousemove(function (e) {
+              newEvent.offsetX = e.offsetX;
+              newEvent.offsetY = e.offsetY
+              //Draw lines
+              if (mouseDown) {
+
+                  // $("canvas").removeClass("cur");
+
+                  draw(lastEvent.offsetX, lastEvent.offsetY, newEvent.offsetX, newEvent.offsetY);
+                  //wb.server.createCanvas(lastEvent.offsetX, lastEvent.offsetY, newEvent.offsetX, newEvent.offsetY);
+                  // wb.client.createCanvas(lastEvent.offsetX, lastEvent.offsetY, newEvent.offsetX, newEvent.offsetY);
+              }
+          }).mouseup(function () {
+              mouseDown = false;
+          }).mouseleave(function () {
+              $canvas.mouseup();
+          });
+          $.connection.hub.start().done(function () {
+             // wb.server.createCanvas(lastEvent.offsetX, lastEvent.offsetY, newEvent.offsetX, newEvent.offsetY)
+              //  draw(lastEvent.offsetX, lastEvent.offsetY, newEvent.offsetX, newEvent.offsetY)
+              // draw(x, y, a, b)
+          });
+          var draw = function (x, y, a, b) {
+              context.beginPath();
+              context.moveTo(x, y);
+              context.lineTo(a, b);
+              context.strokeStyle = color;
+              context.stroke();
+              lastEvent.offsetX = a;
+              lastEvent.offsetY = b;
+          };
+
+
+      });
+      app.controller('chatController', function ($scope) {
+          var vm = this;
+          vm.Name = 'Guest';
+          vm.Message = ''
+          vm.Messages = [];
+          vm.ChatHub = null;
+          vm.color = 'black';
+          vm.lastEvent = {
+              offsetX: 0,
+              offsetY: 0
+          };
+          vm.newEvevnt = {
+              offsetX: 0, offsetY: 0
+          };
+          var $canvas = $("canvas");
+          vm.context = $canvas[0].getContext("2d");
+          vm.mouseDown = false;
+          vm.draw = function (x, y, a, b) {
+              vm.context.beginPath();
+              vm.context.moveTo(x, y);
+              vm.context.lineTo(a, b);
+              vm.context.strokeStyle = vm.color;
+              vm.context.stroke();
+              vm.lastEvent.offsetX = a, vm.lastEvent.offsetY = b
+          };
+          vm.whiteBoard = $.connection.whiteBoard;
+          $.connection.hub.start();
+          vm.whiteBoard.client.broadcastMessage = function (Name, Message) {
+              var newMessage = Name + ': ' + Message;
+              vm.Messages.push(newMessage);
+              $scope.$apply()
+          };
+          vm.whiteBoard.client.createCanvas = function (x, y, a, b) {
+              vm.draw(x, y, a, b);
+          };
+          vm.newMessage = function () {
+              vm.whiteBoard.server.sendMessage(vm.Name, vm.Message);
+              vm.Message = '';
+          };
+          $canvas.mousedown(function (e) {
+              vm.lastEvent.offsetX = e.offsetX;
+              vm.lastEvent.offsetY = e.offsetY;
+              vm.mouseDown = true;
+          })
+          .mouseup(function () {
+              vm.mouseDown = false;
+              })
+          .mouseleave(function () {
+              $canvas.mouseup();
+          })
+          .mousemove(function (e) {
+              vm.newEvevnt.offsetX = e.offsetX;
+              vm.newEvevnt.offsetY = e.offsetY;
+              if(vm.mouseDown)
+              {
+                  if(vm.Name=='Guest'){
+                      $("canvas").removeClass("cur");
+                  }
+                  vm.draw(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
+                  vm.whiteBoard.server.updateCanvas(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
+              }
+          })
+         
+      });
+  </script>
+   
     @RenderSection("scripts", required: false)
 </body>
 </html>
