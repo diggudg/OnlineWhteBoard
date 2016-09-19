@@ -61,37 +61,7 @@
         <hr>
     </div>
 
-    <div class="container text-center">
-        <h3>What We Do</h3>
-        <br>
-        <div class="row">
-            <div class="col-sm-3">
-                <img src="http://placehold.it/150x80?text=IMAGE" class="img-responsive" style="width:100%" alt="Image">
-                <p>Current Project</p>
-            </div>
-            <div class="col-sm-3">
-                <img src="http://placehold.it/150x80?text=IMAGE" class="img-responsive" style="width:100%" alt="Image">
-                <p>Project 2</p>
-            </div>
-            <div class="col-sm-3">
-                <div class="well">
-                    <p>Some text..</p>
-                </div>
-                <div class="well">
-                    <p>Some text..</p>
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="well">
-                    <p>Some text..</p>
-                </div>
-                <div class="well">
-                    <p>Some text..</p>
-                </div>
-            </div>
-        </div>
-        <hr>
-    </div>
+    
 
     <div class="container text-center">
         <h3>Our Partners</h3>
@@ -221,6 +191,7 @@
       app.controller('chatController', function ($scope, $rootScope) {
           var vm = this;
           $rootScope.Name = 'Guest';
+          vm.groupName = [];
           vm.Message = ''
           vm.Messages = [];
           vm.ChatHub = null;
@@ -247,8 +218,15 @@
           $.connection.hub.start().done(function () {
               //vm.draw(x, y, a, b);
           });
+          vm.createGroup = function (groupName) {
+              vm.groupName.push( groupName);
+              vm.whiteBoard.server.joinGroup(groupName).done(function () {
+                  vm.whiteBoard.server.joinChat(groupName, $rootScope.Name)
+              });
+          };
           vm.whiteBoard.client.broadcastMessage = function (Name, Message) {
               var newMessage = Name + ': ' + Message;
+              console.log(newMessage);
               vm.Messages.push(newMessage);
               $scope.$apply()
           };
@@ -256,8 +234,12 @@
               vm.draw(x, y, a, b);
               $scope.$apply()
           };
-          vm.newMessage = function () {
-              vm.whiteBoard.server.sendMessage($rootScope.Name, vm.Message);
+          vm.newMessage = function (groupName, name, message) {
+              vm.whiteBoard.server.sendMessage(groupName, name, message);
+              if (vm.groupName.length!=0) {
+                 
+              }
+              else { alert("select a Group"); }
               vm.Message = '';
           };
           $canvas.mousedown(function (e) {

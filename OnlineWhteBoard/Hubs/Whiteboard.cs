@@ -10,9 +10,9 @@ namespace OnlineWhteBoard.Hubs
     [HubName("whiteBoard")]
     public class Whiteboard : Hub
     {
-        public void SendMessage(string name, string message)
+        public void SendMessage(string groupName,string name, string message)
         {
-            Clients.All.broadcastMessage(name, message);
+            Clients.Group(groupName).broadcastMessage(name, message);
         }
         public void UpdateCanvas(int x, int y, int a, int b)
         {
