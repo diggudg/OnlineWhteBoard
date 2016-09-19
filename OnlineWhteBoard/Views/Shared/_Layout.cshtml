@@ -226,11 +226,11 @@
           vm.ChatHub = null;
           vm.color = 'black';
           vm.lastEvent = {
-              offsetX: 0,
-              offsetY: 0
+              offsetX: null,
+              offsetY: null
           };
           vm.newEvevnt = {
-              offsetX: 0, offsetY: 0
+              offsetX: null, offsetY: null
           };
           var $canvas = $("canvas");
           vm.context = $canvas[0].getContext("2d");
@@ -244,7 +244,9 @@
               vm.lastEvent.offsetX = a, vm.lastEvent.offsetY = b
           };
           vm.whiteBoard = $.connection.whiteBoard;
-          $.connection.hub.start();
+          $.connection.hub.start().done(function () {
+              //vm.draw(x, y, a, b);
+          });
           vm.whiteBoard.client.broadcastMessage = function (Name, Message) {
               var newMessage = Name + ': ' + Message;
               vm.Messages.push(newMessage);
@@ -252,6 +254,7 @@
           };
           vm.whiteBoard.client.createCanvas = function (x, y, a, b) {
               vm.draw(x, y, a, b);
+              $scope.$apply()
           };
           vm.newMessage = function () {
               vm.whiteBoard.server.sendMessage($rootScope.Name, vm.Message);
@@ -269,16 +272,19 @@
               $canvas.mouseup();
           })
           .mousemove(function (e) {
+              //if ($rootScope.Name != 'Trainer') {
+              //    $("canvas").addClass("cur");
+              //}
               vm.newEvevnt.offsetX = e.offsetX;
               vm.newEvevnt.offsetY = e.offsetY;
               if(vm.mouseDown)
               {
-                  if ($rootScope.Name == 'Guest') {
-                      $("canvas").addClass("cur");
-                  }
-                  vm.draw(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
+                 
                   vm.whiteBoard.server.updateCanvas(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
+                  vm.draw(vm.lastEvent.offsetX, vm.lastEvent.offsetY, vm.newEvevnt.offsetX, vm.newEvevnt.offsetY);
+                 
               }
+             
           })
          
       });
